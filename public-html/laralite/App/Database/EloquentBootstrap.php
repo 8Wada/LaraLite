@@ -57,7 +57,7 @@ class EloquentBootstrap
         return;
       }
 
-      $queriesFile = __DIR__ . '/../../logs/sql_queries.json';
+      $queriesFile = __DIR__ . '/../../monitor/logs/sql_queries.json';
 
       // Crear directorio si no existe
       $logsDir = dirname($queriesFile);

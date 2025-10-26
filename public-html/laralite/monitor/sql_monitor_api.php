@@ -12,7 +12,7 @@ use App\Database\EloquentBootstrap;
 use App\Utils\Autoloader;
 
 // Load configuración
-require_once '../config/config.php';
+require_once '../App/Config/config.php';
 require_once '../App/Core/autoload.php';
 require_once '../App/Utils/Autoloader.php';
 

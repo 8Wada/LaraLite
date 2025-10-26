@@ -10,7 +10,7 @@ namespace App;
 use App\Database\EloquentBootstrap;
 use App\Utils\Autoloader;
 
-require_once '../config/config.php';
+require_once '../App/Config/config.php';
 require_once '../App/Core/autoload.php';
 require_once '../App/Utils/Autoloader.php';
 
@@ -25,7 +25,7 @@ header('Content-Type: application/json');
 $diagnostics = [];
 
 // 1. Verificar directorio logs
-$logsDir = '../logs';
+$logsDir = './logs';
 $diagnostics['logs_directory'] = [
     'path' => $logsDir,
     'exists' => is_dir($logsDir),
