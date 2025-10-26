@@ -402,28 +402,45 @@ class Router
 
   /**
    * Obtiene la URL actual desde la solicitud
+   * Soporta tanto URLs limpias (?path=) como acceso directo (index.php/)
    */
   private function getCurrentURL(): string
   {
-    if (isset($_GET['path'])) {
-      return $_GET['path'];
+    // Prioridad 1: Parámetro 'path' del .htaccess
+    if (isset($_GET['path']) && !empty($_GET['path'])) {
+      return trim($_GET['path'], '/');
     }
 
-    $requestUri = $_SERVER['REQUEST_URI'];
-    $currentURL = $requestUri;
-
-    // Manejar index.php en la URL
-    $indexPos = strpos($requestUri, 'index.php');
-    if ($indexPos !== false) {
-      $currentURL = substr($requestUri, $indexPos + strlen('index.php'));
+    // Prioridad 2: REQUEST_URI
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    
+    if (empty($requestUri)) {
+      return '';
     }
 
     // Remover query string
-    if (($queryPos = strpos($currentURL, '?')) !== false) {
-      $currentURL = substr($currentURL, 0, $queryPos);
+    if (($queryPos = strpos($requestUri, '?')) !== false) {
+      $requestUri = substr($requestUri, 0, $queryPos);
     }
 
-    return trim($currentURL, '/');
+    // Obtener el directorio base del script
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '/index.php';
+    $scriptDir = dirname($scriptName);
+    
+    // Normalizar el directorio base
+    if ($scriptDir === '/' || $scriptDir === '\\') {
+      $scriptDir = '';
+    }
+
+    // Remover el directorio base del REQUEST_URI
+    if (!empty($scriptDir) && str_starts_with($requestUri, $scriptDir)) {
+      $requestUri = substr($requestUri, strlen($scriptDir));
+    }
+
+    // Remover /index.php si está presente
+    $requestUri = preg_replace('#^/index\.php/?#', '', $requestUri);
+
+    return trim($requestUri, '/');
   }
 
   /**
@@ -484,5 +501,20 @@ class Router
         $this->params[$nameParam] = $valueParam;
       }
     }
+  }
+
+  /**
+   * Método de debug para troubleshooting
+   */
+  public function debug(): array
+  {
+    return [
+      'SCRIPT_NAME' => $_SERVER['SCRIPT_NAME'] ?? 'NO_SCRIPT_NAME',
+      'REQUEST_URI' => $_SERVER['REQUEST_URI'] ?? 'NO_REQUEST_URI',
+      'GET_path' => $_GET['path'] ?? 'NO_PATH',
+      'URL_limpia' => $this->getCurrentURL(),
+      'Rutas_registradas' => array_column($this->routes, 'url'),
+      'REQUEST_METHOD' => $_SERVER['REQUEST_METHOD'] ?? 'NO_METHOD'
+    ];
   }
 }

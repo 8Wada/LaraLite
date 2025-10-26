@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Permitir acceso directo a federacion.php
+  RewriteCond %{REQUEST_URI} ^/federacion\.php$ [NC]
+  RewriteRule ^ - [L]
+
+  # Redirigir todas las demás solicitudes a index.php (URLs limpias)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php?path=$1 [QSA,L]
+</IfModule>
+
+# Proteger archivos sensibles
+<FilesMatch "\.(env|htaccess|config|log|sql|json|lock|ini|yml|yaml)$">
+  Order Allow,Deny
+  Deny from all
+</FilesMatch>
