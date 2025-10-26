@@ -1,0 +1,58 @@
+name: "${APP_NAME}-backend"
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "${APP_NAME}-php"
+    volumes:
+      - ./code:/var/www/html
+    ports:
+      - "${HOST_PORT}:80"
+    environment:
+      - DEBUG_MODE=${DEBUG_MODE}
+      - HOST_SERVER=${HOST_SERVER}
+      - HOST_BD=${HOST_BD}
+      - HOST_USER=${HOST_USER}
+      - HOST_PASSWORD=${HOST_PASSWORD}
+    networks:
+      - app-network
+
+  db:
+    container_name: "${HOST_SERVER}"
+    image: mysql:5.7.23
+    ports:
+      - "${HOST_DB_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${HOST_PASSWORD}
+      MYSQL_DATABASE: ${HOST_BD}
+      MYSQL_USER: ${HOST_USER}
+      MYSQL_PASSWORD: ${HOST_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command:
+      --sql_mode="" --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    networks:
+      - app-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-carq
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: "${HOST_SERVER}"
+      PMA_USER: "${HOST_USER}"
+      PMA_PASSWORD: "${HOST_PASSWORD}"
+      UPLOAD_LIMIT: 64M
+    networks:
+      - app-network
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    external: true

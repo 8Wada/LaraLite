@@ -1,0 +1,5 @@
+# Ignorar archivos de log de queries SQL
+sql_queries.json
+
+# Pero mantener el directorio
+!.gitignore

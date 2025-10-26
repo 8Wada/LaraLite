@@ -1,0 +1,37 @@
+on:
+  pull_request:
+    branches:
+      - prodBack
+    types: [closed]
+    paths-ignore:
+      - 'swagger/**'
+name: 🛫 Deploy into prodBack
+jobs:
+  web-deploy:
+    name: Deploy prodBack
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: 📂 Sync files - FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          protocol: ftp
+          server: ${{ secrets.HOST_SERVER }}
+          username: ${{ secrets.HOST_USER }}
+          password: ${{ secrets.HOST_PASSWORD }}
+          local-dir: ./code/
+          server-dir: /backend/
+          port: 21
+          timeout: 120000
+          exclude: |
+            swagger/**
+            artisano/**
+            cli.php
+            composer.json
+            composer.lock
+            documents/**
+            monitor/**
+          dangerous-clean-slate: false

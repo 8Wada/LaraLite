@@ -1,0 +1,9 @@
+{
+    "require": {
+        "illuminate/filesystem": "^10.48",
+        "illuminate/console": "^10.48",
+        "symfony/console": "^6.4",
+        "illuminate/database": "^10.38",
+        "fpdf/fpdf": "^1.86"
+    }
+}
