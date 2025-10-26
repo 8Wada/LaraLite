@@ -1,6 +1,16 @@
 <!-- Logo -->
 <p align="center">
-    <img src="./assets/logo (3).png" alt="LaraLite Logo" width="200"/>
+    <img src="./assets/logo (3).png" alt="LaraLite Logo" width="500"/>
+</p>
+
+<!-- Badges de licencias y demas cosas -->
+<p align="end">
+    <a href="https://github.com/lara-lite/laralite/blob/main/LICENSE">
+        <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="Licencia MIT"/>
+    </a>
+    <a href="https://github.com/lara-lite/laralite/blob/main/CONTRIBUTING.md">
+        <img src="https://img.shields.io/badge/Contributing-Welcome-brightgreen.svg" alt="Contribuciones Bienvenidas"/>
+    </a>
 </p>
 
 # Plantilla de despliegue | LaraLite v1.0
