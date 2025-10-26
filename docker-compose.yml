@@ -1,58 +1,72 @@
-name: "${APP_NAME}-backend"
+## Proyecto repositoriosnpUCOL
+version: '3'
 services:
-  php:
+  #Nombre del modulo repositoriosnpUCOL
+  proyecto: 
+    container_name: '${APP_NAME}'
+    working_dir: '/var/www/html/' #Ruta interna del docker, no cambiar
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - 80:80
+    #Nombre de la imagen generada con el docker build
+    image: ${PROJECT_NAME_IMG}
     build:
-      context: .
+      context: ./public-html
       dockerfile: Dockerfile
-    container_name: "${APP_NAME}-php"
+    environment:
+      #Variables de entorno, SOURCE y SIMPLE se mantienen sin alterar para uso localhost
+      #(para pre y prod se ajustarán segun se configure el despliegue)
+      - SOURCE=${SOURCE}
+      - SIMPLE=${SIMPLE}  
+      # Datos de conexión a su base de datos local (igual, en pre-prod tomará los datos de la configuración de despliegue)
+      - ENDPOINT=${ENDPOINT}
+      - DATABASE=${MYSQL_DATABASE}
+      - USERD=${MYSQL_USER}
+      - PASSD=${MYSQL_PASSWORD}
+      - SAML_AUTOLOADER_PATH=/var/www/simplesaml/src/_autoload.php
+      # Otros datos
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - EMAIL_API_URL=${EMAIL_API_URL}
+      - POSTMAN_TESTING=${POSTMAN_TESTING}
+      - POSTMAN_TESTING_USER=${POSTMAN_TESTING_USER}
     volumes:
-      - ./code:/var/www/html
-    ports:
-      - "${HOST_PORT}:80"
-    environment:
-      - DEBUG_MODE=${DEBUG_MODE}
-      - HOST_SERVER=${HOST_SERVER}
-      - HOST_BD=${HOST_BD}
-      - HOST_USER=${HOST_USER}
-      - HOST_PASSWORD=${HOST_PASSWORD}
-    networks:
-      - app-network
+    # Mapeo de la ruta donde está su proyecto y la ruta mapeada dentro del docker 
+      - ./public-html/:/var/www/laralite/
+    depends_on:
+      - mysql
 
-  db:
-    container_name: "${HOST_SERVER}"
-    image: mysql:5.7.23
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-laralite
     ports:
-      - "${HOST_DB_PORT:-3306}:3306"
+      - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: ${HOST_PASSWORD}
-      MYSQL_DATABASE: ${HOST_BD}
-      MYSQL_USER: ${HOST_USER}
-      MYSQL_PASSWORD: ${HOST_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    command:
-      --sql_mode="" --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    networks:
-      - app-network
+      - ./dump/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin-carq
-    restart: always
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin-${PROJECT_NAME}
+    depends_on:
+      - mysql
     ports:
-      - "8080:80"
+      - ${PHPMYADMIN_PORT}:80
     environment:
-      PMA_HOST: "${HOST_SERVER}"
-      PMA_USER: "${HOST_USER}"
-      PMA_PASSWORD: "${HOST_PASSWORD}"
-      UPLOAD_LIMIT: 64M
-    networks:
-      - app-network
+      PMA_HOST: mysql-laralite
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      UPLOAD_LIMIT: 200M # Aumenta el límite de carga a 200MB (ajusta según sea necesario)
+      POST_LIMIT: 200M   # Aumenta el límite de POST a 200MB (ajusta según sea necesario)
+      MEMORY_LIMIT: 1024M #Aumenta el limite de memoria de php, para evitar errores en archivos grandes
+      PHP_UPLOAD_MAX_FILESIZE: 200M #limite maximo de subida de archivos
+      PHP_POST_MAX_SIZE: 200M #limite maximo de post
 
 volumes:
   mysql_data:
-
-networks:
-  app-network:
-    external: true

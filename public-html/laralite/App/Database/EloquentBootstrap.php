@@ -14,14 +14,17 @@ class EloquentBootstrap
       self::$capsule = new Capsule;
 
       self::$capsule->addConnection([
-        'driver'    => 'mysql',
-        'host'      => getenv('HOST_SERVER'),
-        'database'  => getenv('HOST_BD'),
-        'username'  => getenv('HOST_USER'),
-        'password'  => getenv('HOST_PASSWORD'),
-        'charset'   => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix'    => '',
+        'driver'    => getenv('DB_DRIVER') ?: 'mysql',
+        'host'      => getenv('DB_HOST') ?: getenv('ENDPOINT') ?: '127.0.0.1',
+        'database'  => getenv('DB_DATABASE') ?: getenv('DATABASE') ?: '',
+        'port'      => getenv('MYSQL_PORT') ?: getenv('DB_PORT') ?: '3306',
+        'username'  => getenv('DB_USERNAME') ?: getenv('USERD') ?: '',
+        'password'  => getenv('DB_PASSWORD') ?: getenv('PASSD') ?: '',
+        'options'   => [
+          \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+          \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+          \PDO::ATTR_EMULATE_PREPARES => false,
+        ],
       ]);
 
       self::$capsule->setAsGlobal();
@@ -29,7 +32,7 @@ class EloquentBootstrap
 
       // Habilitar query logging para el monitor SQL
       self::$capsule->getConnection()->enableQueryLog();
-      
+
       // Registrar shutdown function para guardar queries al final de la request
       register_shutdown_function([self::class, 'saveQueriesFromLog']);
     }
@@ -49,13 +52,13 @@ class EloquentBootstrap
 
     try {
       $queries = self::$capsule->getConnection()->getQueryLog();
-      
+
       if (empty($queries)) {
         return;
       }
 
       $queriesFile = __DIR__ . '/../../logs/sql_queries.json';
-      
+
       // Crear directorio si no existe
       $logsDir = dirname($queriesFile);
       if (!is_dir($logsDir)) {
@@ -79,7 +82,7 @@ class EloquentBootstrap
           'time' => $query['time'] ?? 0,
           'timestamp' => microtime(true)
         ];
-        
+
         array_unshift($existingQueries, $newQuery);
       }
 
@@ -88,10 +91,9 @@ class EloquentBootstrap
 
       // Guardar
       @file_put_contents($queriesFile, json_encode($existingQueries));
-      
+
       // Limpiar el log después de guardar para evitar duplicados
       self::$capsule->getConnection()->flushQueryLog();
-      
     } catch (\Exception $e) {
       error_log("SQL Monitor Error: " . $e->getMessage());
     }
@@ -122,9 +124,10 @@ class EloquentBootstrap
       $config = self::$capsule?->getConnection()?->getConfig() ?? [];
 
       // En caso de que la conexión ni siquiera se inicialice correctamente
-      $host     = $config['host'] ?? getenv('COLEGIO_SERVER') ?? 'N/D';
-      $database = $config['database'] ?? getenv('COLEGIO_BD') ?? 'N/D';
-      $user     = $config['username'] ?? getenv('COLEGIO_USER') ?? 'N/D';
+      $host     = $config['host'] ?? (getenv('DB_HOST') ?: getenv('ENDPOINT') ?: '127.0.0.1');
+      $database = $config['database'] ?? (getenv('DB_DATABASE') ?: getenv('DATABASE') ?: '');
+      $user     = $config['username'] ?? (getenv('DB_USERNAME') ?: getenv('USERD') ?: '');
+
 
       echo json_encode([
         "status"         => "error",

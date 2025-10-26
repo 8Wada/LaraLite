@@ -35,7 +35,7 @@ RUN mkdir -p /var/www/laralite/public_content \
 # Copiar archivos al contenedor
 ## frontend
 COPY front/ /var/www/laralite/front/
-COPY laralite-api/ /var/www/laralite/laralite/
+COPY laralite/ /var/www/laralite/laralite/
 COPY simplesaml/  /var/www/simplesaml/
 
 
