@@ -1,3 +1,8 @@
+<!-- Logo -->
+<p align="center">
+    <img src="./assets/logo (3).png" alt="LaraLite Logo" width="200"/>
+</p>
+
 # Plantilla de despliegue | LaraLite v1.0
 
 Este repositorio contiene una plantilla de despliegue para aplicaciones web desarrolladas con LaraLite v1.0. La plantilla está diseñada para facilitar la configuración y el despliegue de aplicaciones en entornos de producción.
