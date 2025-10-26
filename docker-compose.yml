@@ -4,7 +4,7 @@ services:
   #Nombre del modulo repositoriosnpUCOL
   proyecto: 
     container_name: '${APP_NAME}'
-    working_dir: '/var/www/html/' #Ruta interna del docker, no cambiar
+    working_dir: '/var/www/laralite/laralite' #Ruta interna del docker, no cambiar
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     ports:

@@ -176,7 +176,13 @@ class {$className}Controller extends Controller
 }
 PHP);
 
-    done("Controller [\e[32m{$path}\e[0m] created successfully.");
+    // done("Controller [\e[32m{$path}\e[0m] created successfully.");
+    //Verificar si la creación fue exitosa
+    if (file_exists($path)) {
+        done("Controller [\e[32m{$path}\e[0m] created successfully.");
+    } else {
+        fail("Failed to create controller [\e[32m{$path}\e[0m].");
+    }
 }
 
 function makeService($fullName, $entity = null)
