@@ -33,3 +33,8 @@ docker exec -it laralite php /var/www/laralite/laralite/artisano migrate:up
 
 7. Una vez finalizadas las migraciones, puedes acceder a la aplicación en tu navegador web en la URL configurada.
 En base a la configuración actual, la URL por defecto será `http://localhost/laralite/api/v1/`
+
+8. El framework por defecto cuenta con monitoreo de logs utilizando `logviewer`. Puedes acceder a los logs en la siguiente URL:
+
+`http://localhost/laralite/api/monitor/quick_test_monitor.php` - Para pruebas rápidas de monitoreo.
+`http://localhost/laralite/api/monitor/sql_monitor.php` - Para monitoreo de consultas SQL.
