@@ -8,7 +8,7 @@ global $r, $DB;
 // ================================================================
 // ROOT & DATABASE
 // ================================================================
-
+$r->setBasePath('');
 $r->get('/', function () {
   ResponseHelper::responseRequest(false, 'API is working', 200, [
     "name"        => "LaraLite API",
